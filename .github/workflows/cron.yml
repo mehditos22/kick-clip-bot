@@ -2,8 +2,8 @@ name: Auto Upload Kick Clips
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # Toutes les 2 heures
-  workflow_dispatch:       # Permet un déclenchement manuel
+    - cron: '0 */2 * * *'  # toutes les 2 heures
+  workflow_dispatch:
 
 jobs:
   run-script:
