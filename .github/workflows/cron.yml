@@ -2,20 +2,24 @@ name: Auto Upload Kick Clips
 
 on:
   schedule:
-    - cron: "0 */2 * * *"  # Toutes les 2 heures
-  workflow_dispatch:
+    - cron: '0 */2 * * *'  # Toutes les 2 heures
+  workflow_dispatch:       # Permet un déclenchement manuel
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: '18'
+
+      - name: Install yt-dlp
+        run: sudo apt-get update && sudo apt-get install -y yt-dlp
 
       - name: Install dependencies
         run: npm install
@@ -25,4 +29,4 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
-        run: node scrapeAndUpload.js
+        run: node detectNewClips.js
