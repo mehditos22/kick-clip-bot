@@ -1,25 +1,28 @@
-name: Kick Clip Detector Cron
+name: Auto Upload Kick Clips
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # toutes les 10 minutes
-  workflow_dispatch:        # permet de lancer manuellement
+    - cron: "0 */2 * * *"  # Toutes les 2 heures
+  workflow_dispatch:
 
 jobs:
   run-script:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
-    - name: Install dependencies
-      run: npm install
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run script
-      run: node detectNewClips.js
+      - name: Run script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
+        run: node scrapeAndUpload.js
