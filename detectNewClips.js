@@ -1,5 +1,5 @@
 import axios from "axios";
-import cheerio from "cheerio";
+import { load } from "cheerio";    // <-- correction ici
 import fs from "fs";
 
 const STREAMER = "ilyaselmaliki";
@@ -9,7 +9,7 @@ const SEEN_FILE = "seen_clips.json";
 async function fetchClips() {
   try {
     const res = await axios.get(URL);
-    const $ = cheerio.load(res.data);
+    const $ = load(res.data);     // <-- utilisation de load au lieu de cheerio.load
     const clips = [];
 
     $("a").each((i, el) => {
