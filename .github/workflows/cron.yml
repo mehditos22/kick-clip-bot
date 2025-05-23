@@ -1,0 +1,25 @@
+name: Kick Clip Detector Cron
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # toutes les 10 minutes
+  workflow_dispatch:        # permet de lancer manuellement
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run script
+      run: node detectNewClips.js
