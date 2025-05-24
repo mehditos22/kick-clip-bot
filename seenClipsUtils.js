@@ -1,3 +1,12 @@
+// ✅ Patch fetch pour Node.js 18+ et Supabase Storage (duplex: 'half')
+import fetch from 'node-fetch';
+globalThis.fetch = (input, init = {}) => {
+  if (init.body && !init.duplex) {
+    init.duplex = 'half';
+  }
+  return fetch(input, init);
+};
+
 import fs from 'fs';
 import path from 'path';
 import { createClient } from '@supabase/supabase-js';
