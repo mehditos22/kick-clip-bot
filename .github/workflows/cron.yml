@@ -19,15 +19,17 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci # plus rapide et plus sûr que `npm install`
 
       - name: Install Chrome for Puppeteer
         run: npx puppeteer browsers install chrome
 
       - name: Install yt-dlp
-        run: sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && sudo chmod a+rx /usr/local/bin/yt-dlp
+        run: |
+          sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp
+          sudo chmod a+rx /usr/local/bin/yt-dlp
 
-      - name: Run script
+      - name: Run clip detection & upload
         run: node detectNewClips.js
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
