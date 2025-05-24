@@ -13,7 +13,7 @@ import { exec } from "child_process";
 import util from "util";
 import path from "path";
 import dotenv from "dotenv";
-import { loadSeenClips, uploadSeenClips } from "./seenClipUtils.js";
+import { loadSeenClips, uploadSeenClips } from "./seenClipsUtils.js";
 
 dotenv.config();
 
