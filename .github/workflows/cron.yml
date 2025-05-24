@@ -1,32 +1,35 @@
-name: Auto Upload Kick Clips
+name: Daily Kick Clip Sync
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # toutes les 2 heures
+    - cron: "0 * * * *" # Toutes les heures — modifiable
   workflow_dispatch:
 
 jobs:
-  run-script:
+  download-upload:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-
-      - name: Install yt-dlp
-        run: sudo apt-get update && sudo apt-get install -y yt-dlp
+          node-version: 20
 
       - name: Install dependencies
         run: npm install
 
+      - name: Install Chrome for Puppeteer
+        run: npx puppeteer browsers install chrome
+
+      - name: Install yt-dlp
+        run: sudo curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && sudo chmod a+rx /usr/local/bin/yt-dlp
+
       - name: Run script
+        run: node detectNewClips.js
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           SUPABASE_BUCKET: ${{ secrets.SUPABASE_BUCKET }}
-        run: node detectNewClips.js
