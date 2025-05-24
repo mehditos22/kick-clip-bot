@@ -1,6 +1,5 @@
 // Patch fetch pour Node.js 18+ et supabase (fix duplex option)
 import fetch from 'node-fetch';
-
 globalThis.fetch = (input, init = {}) => {
   if (init.body && !init.duplex) {
     init.duplex = 'half';
@@ -15,6 +14,7 @@ import util from "util";
 import { createClient } from "@supabase/supabase-js";
 import path from "path";
 import dotenv from "dotenv";
+import { loadSeenClips, uploadSeenClips } from "./seenClipsUtils.js";
 
 dotenv.config();
 
@@ -22,7 +22,6 @@ const execPromise = util.promisify(exec);
 
 const STREAMER = "ilyaselmaliki";
 const URL = `https://kick.com/${STREAMER}/clips?sort=date&range=all`;
-const SEEN_FILE = "seen_clips.json";
 const CLIPS_DIR = "./clips";
 
 // Supabase config
@@ -49,7 +48,7 @@ async function fetchClips() {
 
   try {
     await page.goto(URL, { waitUntil: "networkidle2" });
-await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise(resolve => setTimeout(resolve, 5000));
 
     const clips = await page.evaluate(() => {
       const clipUrls = new Set();
@@ -66,23 +65,10 @@ await new Promise(resolve => setTimeout(resolve, 5000));
     await browser.close();
     return clips;
   } catch (err) {
-    console.error("Erreur Puppeteer :", err.message);
+    console.error("❌ Erreur Puppeteer :", err.message);
     await browser.close();
     return [];
   }
-}
-
-function loadSeenClips() {
-  if (!fs.existsSync(SEEN_FILE)) return [];
-  try {
-    return JSON.parse(fs.readFileSync(SEEN_FILE, "utf-8"));
-  } catch {
-    return [];
-  }
-}
-
-function saveSeenClips(clips) {
-  fs.writeFileSync(SEEN_FILE, JSON.stringify(clips, null, 2));
 }
 
 async function downloadClip(clipUrl) {
@@ -119,7 +105,7 @@ async function uploadToSupabase(filePath) {
 }
 
 async function main() {
-  const seen = loadSeenClips();
+  const seen = await loadSeenClips();
   const current = await fetchClips();
 
   const newClips = current.filter((clip) => !seen.includes(clip));
@@ -135,7 +121,8 @@ async function main() {
     if (localPath) await uploadToSupabase(localPath);
   }
 
-  saveSeenClips([...new Set([...seen, ...newClips])]);
+  const updatedSeen = [...new Set([...seen, ...newClips])];
+  await uploadSeenClips(updatedSeen);
 }
 
 main();
